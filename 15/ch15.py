@@ -12,6 +12,7 @@ from gtts import gTTS
 import openai
 import click
 
+
 def init_api():
     with open(".env") as env:
         for line in env:
@@ -21,17 +22,17 @@ def init_api():
     openai.api_key = os.environ.get("API_KEY")
     openai.organization = os.environ.get("ORG_ID")
 
-# чтение аргументов
+
 @click.command()
-@click.option("--model", default="base", help="Используемая модель", type=click.Choice(["tiny","base", "small","medium","large"]))
-@click.option("--english", default=False, help="Использовать ли английскую модель",is_flag=True, type=bool)
+@click.option("--model", default="base", help="Используемая модель", type=click.Choice(["tiny", "base", "small", "medium", "large"]))
+@click.option("--english", default=False, help="Использовать ли английскую модель", is_flag=True, type=bool)
 @click.option("--energy", default=300, help="Уровень сигнала для обнаружения голоса", type=int)
 @click.option("--pause", default=0.8, help="Длительность паузы перед окончанием", type=float)
-@click.option("--dynamic_energy", default=False,is_flag=True, help="Флаг включения динамической энергии", type=bool)
+@click.option("--dynamic_energy", default=False, is_flag=True, help="Флаг включения динамической энергии", type=bool)
 @click.option("--wake_word", default="Привет компьютер", help="Команда пробуждения", type=str)
-@click.option("--verbose", default=False, help="Печатать ли подробный вывод",is_flag=True, type=bool)
-
+@click.option("--verbose", default=False, help="Печатать ли подробный вывод", is_flag=True, type=bool)
 def main(model, english, energy, pause, dynamic_energy, wake_word, verbose):
+    """Чтение аргументов."""
     # не существует английской модели с параметром large
     if model != "large" and english:
         model = model + ".en"
@@ -45,8 +46,9 @@ def main(model, english, energy, pause, dynamic_energy, wake_word, verbose):
     while True:
         print(result_queue.get())
 
-# запись речи
+
 def record_audio(audio_queue, energy, pause, dynamic_energy):
+    """Запись речи."""
     # загружаем систему распознавания речи и настраиваем пороговые значения речи и паузы
     r = sr.Recognizer()
     r.energy_threshold = energy
@@ -67,12 +69,13 @@ def record_audio(audio_queue, energy, pause, dynamic_energy):
             audio_queue.put_nowait(audio_data)
             i += 1
 
-# Расшифровка записи
+
 def transcribe_forever(audio_queue, result_queue, audio_model, english, wake_word, verbose):
+    """Расшифровка записи."""
     while True:
         audio_data = audio_queue.get()
         if english:
-            result = audio_model.transcribe(audio_data,language='english')
+            result = audio_model.transcribe(audio_data, language='english')
         else:
             result = audio_model.transcribe(audio_data)
 
@@ -81,7 +84,7 @@ def transcribe_forever(audio_queue, result_queue, audio_model, english, wake_wor
         if predicted_text.strip().lower().startswith(wake_word.strip().lower()):
             pattern = re.compile(re.escape(wake_word), re.IGNORECASE)
             predicted_text = pattern.sub("", predicted_text).strip()
-            punc = '''!()-[]{};:'"\,<>./?@#$%^&*_~'''
+            punc = '''!()-[]{};:'"\\,<>./?@#$%^&*_~'''
             predicted_text.translate({ord(i): None for i in punc})
             if verbose:
                 print("Вы произнесли команду пробуждения... Обработка {}...".format(predicted_text))
@@ -90,8 +93,9 @@ def transcribe_forever(audio_queue, result_queue, audio_model, english, wake_wor
             if verbose:
                 print("Вы не произнесли команду пробуждения... Речь проигнорирована")
 
-# Ответ пользователю
+
 def reply(result_queue):
+    """Ответ пользователю."""
     while True:
         result = result_queue.get()
         data = openai.Completion.create(
@@ -106,6 +110,7 @@ def reply(result_queue):
         reply_audio = AudioSegment.from_mp3("reply.mp3")
         play(reply_audio)
         os.remove("reply.mp3")
+
 
 # Главная точка входа
 init_api()

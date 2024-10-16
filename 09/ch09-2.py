@@ -37,7 +37,7 @@ categories = [
 
 
 # определение функции для классификации предложений
-def classify_sentence(sentence):
+def classify_sentence(sentence: str) -> float:
     # получение встраивания предложения
     sentence_embedding = get_embedding(sentence, engine="text-embedding-ada-002")
     # вычисление сходства между предложением и каждой категорией

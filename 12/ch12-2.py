@@ -1,5 +1,19 @@
+from flask import Flask, jsonify
+from flask_cors import CORS
+from flask import request
 import os
 import openai
+
+# configuration
+DEBUG = True
+
+# instantiate the app
+app = Flask(__name__)
+app.config.from_object(__name__)
+
+# enable CORS
+CORS(app, resources={r'/*': {'origins': '*'}})
+
 
 def init_api():
     with open(".env") as env:
@@ -10,11 +24,13 @@ def init_api():
     openai.api_key = os.environ.get("API_KEY")
     openai.organization = os.environ.get("ORG_ID")
 
+
 init_api()
 
-def regular_discussion(prompt):
+
+def regular_discussion(query: str) -> str:
     """
-    аргументы: prompt - строка
+    аргументы: query - строка
     Возвращает ответ API с использованием Davinci.
     Если пользователь спрашивает о лекарстве, вызывает get_malady_name().
     """
@@ -44,7 +60,7 @@ def regular_discussion(prompt):
     ИИ: ######
 
     Человек: {}
-    ИИ:""".format(prompt)
+    ИИ:""".format(query)
 
     # получение ответа от API
     response = openai.Completion.create(
@@ -54,17 +70,17 @@ def regular_discussion(prompt):
         stop=["\n", " Человек:", " ИИ:"],
     )
     if response.choices[0].text.strip() == "######":
-        get_malady_name(prompt)
+        return get_malady_name(query)
     else:
         final_response = response.choices[0].text.strip() + "\n"
-        print("ИИ: {}".format(final_response))
+        return ("{}".format(final_response))
 
-def get_malady_name(drug_name):
+
+def get_malady_name(drug_name: str) -> str:
     """
     аргументы: drug_name - строка
     Возвращает название заболевания, соответствующего названию препарата, из настроенной модели.
     Эта функция вызывает get_malady_description(), чтобы получить описание болезни
-
     """
     # указываем идентификатор модели. Вставьте здесь ID своей модели
     model = "ada:ft-learninggpt:drug-malady-data-2023-02-21-20-36-07"
@@ -73,14 +89,14 @@ def get_malady_name(drug_name):
         1: "Adhd",
         2: "Allergies",
         # ...
-   }
+    }
 
     # возвращаем класс для каждого лекарства
     prompt = "Лекарство: {}\nMalady:".format(drug_name)
 
     response = openai.Completion.create(
         model=model,
-        prompt= prompt,
+        prompt=prompt,
         temperature=1,
         max_tokens=1,
     )
@@ -88,12 +104,14 @@ def get_malady_name(drug_name):
     response = response.choices[0].text.strip()
     try:
         malady = class_map[int(response)]
-        print("ИИ: Это лекарство применяется для лечения {}.".format(malady))
-        print(get_malady_description(malady))
+        print("==")
+        print("Это лекарство применяется для лечения {}.".format(malady) + get_malady_description(malady))
+        return "Это лекарство применяется для лечения {}.".format(malady) + " " + get_malady_description(malady)
     except:
-        print("ИИ: Я не знаю, для чего применяется '" + drug_name + "'")
+        return "Я не знаю, для чего применяется '" + drug_name + "'"
 
-def get_malady_description(malady):
+
+def get_malady_description(malady: str) -> str:
     """
     аргументы: malady - строка
     Получает описание болезни из API с помощью Davinci.
@@ -112,9 +130,17 @@ def get_malady_description(malady):
         prompt=prompt,
         max_tokens=100,
         stop=["\n", " Q:", " A:"],
-   )
-   return response.choices[0].text.strip()
+    )
+    return response.choices[0].text.strip() + "\\n"
 
-if      name      == "    main    ":
-    while True:
-        regular_discussion(input("Человек:"))
+
+@app.route('/', methods=['GET'])
+def repply():
+    m = request.args.get('m')
+    chatbot = regular_discussion(m)
+    print("chatbot: ", chatbot)
+    return jsonify({'m': chatbot})
+
+
+if __name__ == '__main__':
+    app.run()

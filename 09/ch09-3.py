@@ -38,7 +38,7 @@ categories = [
 
 
 # определение функции для классификации предложений
-def classify_sentence(sentence):
+def classify_sentence(sentence: str) -> float:
     # получение встраивания предложения
     sentence_embedding = get_embedding(sentence, engine="text-embedding-ada-002")
     # вычисление сходства между предложением и каждой категорией
@@ -50,7 +50,7 @@ def classify_sentence(sentence):
     return max(similarity_scores, key=similarity_scores.get)
 
 
-def evaluate_precision(categories):
+def evaluate_precision(categories: list) -> float:
     # загружаем набор данных
     df = pd.read_json("data/News_Category_Dataset_v3.json", lines=True).head(20)
     y_true = []

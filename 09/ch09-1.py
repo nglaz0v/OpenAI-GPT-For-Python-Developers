@@ -28,7 +28,7 @@ def download_nltk_data():
         nltk.download('stopwords')
 
 
-def preprocess_review(review):
+def preprocess_review(review: str) -> str:
     from nltk.corpus import stopwords
     from nltk.stem import PorterStemmer
     stopwords = set(stopwords.words('english'))
