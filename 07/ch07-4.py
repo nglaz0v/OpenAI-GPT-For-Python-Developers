@@ -3,6 +3,7 @@ import os
 import openai
 import click
 
+
 def init_api():
     with open(".env") as env:
         for line in env:
@@ -11,6 +12,7 @@ def init_api():
 
     openai.api_key = os.environ.get("API_KEY")
     openai.organization = os.environ.get("ORG_ID")
+
 
 init_api()
 
@@ -31,16 +33,16 @@ Input: {}
 Output:"""
 
 while True:
-        request = input(click.style("Input", fg="green"))
-        prompt = _prompt.format(request)
-        result = openai.Completion.create(
-                model="text-davinci-002",
-                prompt=prompt,
-                temperature=0.0,
-                max_tokens=100,
-                stop=["\n"],
-        )
+    request = input(click.style("Input", fg="green"))
+    prompt = _prompt.format(request)
+    result = openai.Completion.create(
+        model="text-davinci-002",
+        prompt=prompt,
+        temperature=0.0,
+        max_tokens=100,
+        stop=["\n"],
+    )
 
-        command = result.choices[0].text.strip()
-        click.echo(click.style("Output: ", fg="yellow") + command)
-        click.echo()
+    command = result.choices[0].text.strip()
+    click.echo(click.style("Output: ", fg="yellow") + command)
+    click.echo()

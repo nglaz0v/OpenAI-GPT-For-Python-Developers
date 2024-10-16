@@ -1,6 +1,7 @@
 import os
 import openai
 
+
 def init_api():
     with open(".env") as env:
         for line in env:
@@ -9,6 +10,7 @@ def init_api():
 
     openai.api_key = os.environ.get("API_KEY")
     openai.organization = os.environ.get("ORG_ID")
+
 
 init_api()
 
@@ -29,7 +31,7 @@ func main() {
   if err != nil {
     log.Fatalln(err)
   }
-	
+
   body, err := ioutil.ReadAll(resp.Body)
   if err != nil {
     log.Fatalln(err)
@@ -37,9 +39,9 @@ func main() {
 
   sb := string(body)
   log.Printf(sb)
-}	
+}
   """
-	
+
 )
 
 print(response['choices'][0]['text'])

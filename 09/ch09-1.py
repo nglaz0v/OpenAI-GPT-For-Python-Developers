@@ -6,6 +6,7 @@ import openai
 from openai.embeddings_utils import get_embedding
 from openai.embeddings_utils import cosine_similarity
 
+
 def init_api():
     with open(".env") as env:
         for line in env:
@@ -15,15 +16,17 @@ def init_api():
     openai.api_key = os.environ.get("API_KEY")
     openai.organization = os.environ.get("ORG_ID")
 
+
 def download_nltk_data():
     try:
-       nltk.data.find('tokenizers/punkt')
+        nltk.data.find('tokenizers/punkt')
     except LookupError:
-       nltk.download('punkt')
+        nltk.download('punkt')
     try:
-       nltk.data.find('corpora/stopwords')
+        nltk.data.find('corpora/stopwords')
     except LookupError:
-       nltk.download('stopwords')
+        nltk.download('stopwords')
+
 
 def preprocess_review(review):
     from nltk.corpus import stopwords
@@ -35,13 +38,14 @@ def preprocess_review(review):
     tokens = [stemmer.stem(token) for token in tokens]
     return ' '.join(tokens)
 
+
 init_api()
 download_nltk_data()
 
 # получаем поисковый запрос от пользователя
 input_coffee_name = input("Enter a coffee name: ")
 
-# читаем csv-файл в DataFrame (только первые 50 строк для 
+# читаем csv-файл в DataFrame (только первые 50 строк для
 # ускорения работы примера и снижения расходов на оплату API)
 
 df = pd.read_csv('simplified_coffee.csv', nrows=50)
@@ -59,7 +63,7 @@ for review in df['preprocessed_review']:
 try:
     input_coffee_index = df[df['name'] == input_coffee_name].index[0]
 except:
-    print("Извините, такого названия кофе нет в нашей базе данных. Попробуйте еще раз.")
+    print("Извините, такого названия кофе нет в нашей базе данных. Попробуйте ещё раз.")
     exit()
 
 # Вычисляем косинусное сходство между обзором кофе, который выбрал

@@ -5,6 +5,7 @@ import numpy as np
 from openai.embeddings_utils import get_embedding
 from openai.embeddings_utils import cosine_similarity
 
+
 def init_api():
     with open(".env") as env:
         for line in env:
@@ -13,6 +14,7 @@ def init_api():
 
     openai.api_key = os.environ.get("API_KEY")
     openai.organization = os.environ.get("ORG_ID")
+
 
 init_api()
 
@@ -41,4 +43,3 @@ search_term_embedding = get_embedding(user_search, engine='text-embedding-ada-00
 df['similarity'] = df['embedding'].apply(lambda x: cosine_similarity(x, search_term_embedding))
 
 print(df)
-
