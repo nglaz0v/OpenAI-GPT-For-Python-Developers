@@ -1,6 +1,7 @@
 import os
 import openai
 
+
 def init_api():
     with open(".env") as env:
         for line in env:
@@ -9,6 +10,7 @@ def init_api():
 
     openai.api_key = os.environ.get("API_KEY")
     openai.organization = os.environ.get("ORG_ID")
+
 
 init_api()
 
@@ -23,4 +25,7 @@ kwargs = {
 }
 
 response = openai.Image.create_variation(**kwargs)
-url = response
+urls = response["data"]
+
+for i in range(n):
+    print(urls[i]['url'])

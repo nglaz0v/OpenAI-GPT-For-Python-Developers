@@ -1,6 +1,7 @@
 import os
 import openai
 
+
 def init_api():
     with open(".env") as env:
         for line in env:
@@ -9,6 +10,7 @@ def init_api():
 
     openai.api_key = os.environ.get("API_KEY")
     openai.organization = os.environ.get("ORG_ID")
+
 
 init_api()
 
@@ -24,6 +26,7 @@ kwargs = {
     "prompt": prompt,
     "n": n,
     "size": size,
+    # "response_format": "b64_json",
 }
 
 response = openai.Image.create_edit(**kwargs)

@@ -7,7 +7,8 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model, preprocess = clip.load('ViT-B/32', device=device)
 
 # Загрузка изображения
-image = PIL.Image.open("../resources/ASTRONAUTS.jpg")
+# wget https://upload.wikimedia.org/wikipedia/commons/d/d0/STS086-371-015_-_STS-086_-_Various_views_of_STS-86_and_Mir_24_crewmembers_on_the_Mir_space_station_-_DPLA_-_92233a2e397bd089d70a7fcf922b34a4.jpg -O ASTRONAUTS.jpg
+image = PIL.Image.open("ASTRONAUTS.jpg")
 
 # Предварительная обработка изображения
 image_input = preprocess(image).unsqueeze(0).to(device)
@@ -19,9 +20,9 @@ with torch.no_grad():
 # Определение списка текстовых запросов
 prompts = [
     "Большая галактика в центре скопления галактик, расположенного в созвездии Волопаса.",
-    " Автобус MTA Long Island только что выехал из автовокзала Хемпстеда по маршруту N6.",
+    "Автобус MTA Long Island только что выехал из автовокзала Хемпстеда по маршруту N6.",
     "Специалисты экспедиции STS-86 Владимир Титов и Жан-Лу Кретьен позируют для фото в главном модуле станции",
-    " Вид на Международную космическую станцию (МКС) с космического корабля Союз ТМА-19 при приближении к станции для стыковки. ",
+    "Вид на Международную космическую станцию (МКС) с космического корабля Союз ТМА-19 при приближении к станции для стыковки. ",
     "Цирковой тигр в клетке на фоне дрессировщика тигров.",
     "Автомеханик занимается ремонтом двигателя",
 ]
